@@ -26,9 +26,11 @@ export function App() {
     transactionsByEmployeeUtils.invalidateData();
 
     await employeeUtils.fetchAll();
-    await paginatedTransactionsUtils.fetchAll();
-
+    /* bug-5 fix: move setIsLoading invocation to before
+    the fetchAll() for paginatedTransactionsUtils */
     setIsLoading(false);
+
+    await paginatedTransactionsUtils.fetchAll();
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils]);
 
   const loadTransactionsByEmployee = useCallback(
@@ -66,10 +68,11 @@ export function App() {
             if (newValue === null) {
               return;
             } else if (newValue.id === "") {
+            /* bug-3 fix: additional conditional to account for the empty id value
+            on the EMPTY_EMPLOYEE constant */
               await loadAllTransactions();
               return;
             }
-
             await loadTransactionsByEmployee(newValue.id);
           }}
         />
