@@ -13,6 +13,9 @@ export const InputCheckbox: InputCheckboxComponent = ({
   return (
     <div className="RampInputCheckbox--container" data-testid={inputId}>
       <label
+        /* bug-2 fix: <label> element was not associated with <input> element. 
+        Added the `htmlFor` attribute to indicate that the <label> element 
+        is bound to the <input> element. */
         htmlFor={inputId}
         className={classNames("RampInputCheckbox--label", {
           "RampInputCheckbox--label-checked": checked,

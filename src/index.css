@@ -92,6 +92,10 @@ hr.RampBreak--l {
 
 .RampInputSelect--dropdown-container {
   display: none;
+  /* bug-1 fix: I chose inherit so that the dropdown's position will be determined based on the
+  parent's position value, should it ever change. Setting this position to absolute and then
+  adding a `position: relative` to the parent would work as well, but that causes the dropdown
+  to cover the transactions, and personally I believe that ins't optimal from a UX standpoint. */
   position: inherit;
   width: 100%;
   max-width: 700px;
