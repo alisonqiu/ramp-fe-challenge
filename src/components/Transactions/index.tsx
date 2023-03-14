@@ -5,10 +5,12 @@ import { TransactionPane } from "./TransactionPane";
 import { SetTransactionApprovalFunction, TransactionsComponent } from "./types";
 
 export const Transactions: TransactionsComponent = ({ transactions }) => {
-  /* bug-7 fix: added a call to the `clearCacheByEndpoint` fuction in the 
-  useCustomFetch() hook in order to clear the cacheded data for the 
-  paginatedTransactions endpoint and the transactionsByEmployee endpoint. 
-  See line 24. */
+  /* bug-7 fix: added a call to the `clearCacheByEndpoint` fuction (see useCustomFetch.ts)
+  in the useCustomFetch() hook in order to clear the cacheded data for the 
+  `paginatedTransactions` and `transactionsByEmployee` endpoints specifically. See line 24.
+  This bug can technically be fixed using the clearCache() function, however, this clears
+  the entire cache. This is inefficent as it will also remove useful cached data for `employees`
+  and `setTransactionApproval`, causing unnecessary refetching of data, slowing down the application.*/
   const { fetchWithoutCache, clearCacheByEndpoint, loading } = useCustomFetch();
 
   const setTransactionApproval = useCallback<SetTransactionApprovalFunction>(
@@ -20,7 +22,7 @@ export const Transactions: TransactionsComponent = ({ transactions }) => {
           value: newValue,
         }
       );
-      // clear cacheded data for paginatedTransactions and transactionsByEmployee
+      // clear cacheded data for paginatedTransactions and transactionsByEmployee only
       clearCacheByEndpoint(["paginatedTransactions", "transactionsByEmployee"]);
     },
     [fetchWithoutCache, clearCacheByEndpoint]
