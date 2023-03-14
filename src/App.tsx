@@ -16,6 +16,12 @@ export function App() {
     useTransactionsByEmployee();
   const [isLoading, setIsLoading] = useState(false);
 
+  /* bug-6 fix: added variable to track whether the transactions
+   are filtered by employee or not. This is used to conditionally render the
+   button on line 100. This value is toggled false in the loadAllTransactions
+   function and toggled true in the loadTransactionsByEmployee function. */
+  const [isFilteredByEmployee, setIsFilteredByEmployee] = useState(false);
+
   const transactions = useMemo(
     () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
     [paginatedTransactions, transactionsByEmployee]
@@ -24,6 +30,9 @@ export function App() {
   const loadAllTransactions = useCallback(async () => {
     setIsLoading(true);
     transactionsByEmployeeUtils.invalidateData();
+
+    /* bug-6 fix: set isFilteredByEmployee to false */
+    setIsFilteredByEmployee(false);
 
     await employeeUtils.fetchAll();
     /* bug-5 fix: move setIsLoading invocation to before
@@ -36,6 +45,9 @@ export function App() {
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
       paginatedTransactionsUtils.invalidateData();
+
+      /* bug-6 fix: set isFilteredByEmployee to true */
+      setIsFilteredByEmployee(true);
       await transactionsByEmployeeUtils.fetchById(employeeId);
     },
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
@@ -68,7 +80,7 @@ export function App() {
             if (newValue === null) {
               return;
             } else if (newValue.id === "") {
-            /* bug-3 fix: additional conditional to account for the empty id value
+              /* bug-3 fix: additional conditional to account for the empty id value
             on the EMPTY_EMPLOYEE constant */
               await loadAllTransactions();
               return;
@@ -82,17 +94,21 @@ export function App() {
         <div className="RampGrid">
           <Transactions transactions={transactions} />
 
-          {transactions !== null && (
-            <button
-              className="RampButton"
-              disabled={paginatedTransactionsUtils.loading}
-              onClick={async () => {
-                await loadAllTransactions();
-              }}
-            >
-              View More
-            </button>
-          )}
+          {/* bug-6 fix: conditionally render the button based on whether the isFilteredByEmployee
+           variable is true, and whether there's a next page to make a request to. */}
+          {transactions !== null &&
+            !isFilteredByEmployee &&
+            paginatedTransactions?.nextPage !== null && (
+              <button
+                className="RampButton"
+                disabled={paginatedTransactionsUtils.loading}
+                onClick={async () => {
+                  await loadAllTransactions();
+                }}
+              >
+                View More
+              </button>
+            )}
         </div>
       </main>
     </Fragment>
